@@ -14,8 +14,10 @@ export class NebulaHitlRequest implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Nebula HITL Request',
     name: 'nebulaHitlRequest',
-    // Custom SVG icon hosted on GitHub (person with notification badge)
-    iconUrl: 'https://raw.githubusercontent.com/linkorb/n8n-nodes-nebula/main/nodes/NebulaHitlRequest/nebulaHitlRequest.svg',
+    // Note: Custom SVG icons don't work with N8N_CUSTOM_EXTENSIONS due to n8n bug
+    // See: https://github.com/n8n-io/n8n/issues/21360
+    // Using Font Awesome as fallback. Install via npm for custom SVG icons.
+    icon: 'fa:user-clock',
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"]}}',

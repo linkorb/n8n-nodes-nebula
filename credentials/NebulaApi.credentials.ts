@@ -9,8 +9,10 @@ export class NebulaApi implements ICredentialType {
   name = 'nebulaApi';
   displayName = 'Nebula API';
   documentationUrl = 'https://github.com/linkorb/n8n-nodes-nebula';
-  // Custom SVG icon hosted on GitHub (LinkORB-inspired Q logo)
-  iconUrl = 'https://raw.githubusercontent.com/linkorb/n8n-nodes-nebula/main/credentials/nebulaApi.svg';
+  // Note: Custom SVG icons don't work with N8N_CUSTOM_EXTENSIONS due to n8n bug
+  // See: https://github.com/n8n-io/n8n/issues/21360
+  // Using Font Awesome as fallback. Install via npm for custom SVG icons.
+  icon = 'fa:circle-nodes' as const;
 
   properties: INodeProperties[] = [
     {
