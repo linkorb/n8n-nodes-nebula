@@ -1,0 +1,28 @@
+{
+  "node": "n8n-nodes-nebula.nebulaHitlRequest",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Utility", "Core Nodes"],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/linkorb/n8n-nodes-nebula"
+      }
+    ]
+  },
+  "alias": [
+    "nebula",
+    "hitl",
+    "human",
+    "approval",
+    "wait",
+    "human in the loop",
+    "manual",
+    "confirm",
+    "review"
+  ],
+  "subcategories": {
+    "Core Nodes": ["Flow"]
+  }
+}
+

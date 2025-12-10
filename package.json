@@ -1,0 +1,66 @@
+{
+  "name": "n8n-nodes-nebula",
+  "version": "1.0.0",
+  "description": "n8n nodes for Nebula - Human-in-the-Loop (HITL) requests with configurable REST API backend",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "nebula",
+    "human-in-the-loop",
+    "hitl",
+    "approval",
+    "nebula-hitl"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "author": {
+    "name": "Joost Faassen"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=18.10",
+    "pnpm": ">=9.1"
+  },
+  "packageManager": "pnpm@9.1.4",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "prepublishOnly": "pnpm build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/NebulaApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/NebulaHitlRequest/NebulaHitlRequest.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.16.0",
+    "gulp": "^5.0.0",
+    "n8n-workflow": "^1.70.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "uuid": "^11.0.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
