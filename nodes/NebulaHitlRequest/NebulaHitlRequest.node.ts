@@ -110,9 +110,9 @@ export class NebulaHitlRequest implements INodeType {
             description: 'Free-form text input',
           },
           {
-            name: 'Custom',
-            value: 'custom',
-            description: 'Custom response options defined as JSON',
+            name: 'Form (survey.json)',
+            value: 'form',
+            description: 'Custom form defined as survey.json JSON format',
           },
         ],
         default: 'ok',
@@ -124,16 +124,16 @@ export class NebulaHitlRequest implements INodeType {
         },
       },
       {
-        displayName: 'Custom Response Options',
-        name: 'customOptions',
+        displayName: 'Form JSON',
+        name: 'formJson',
         type: 'json',
-        default: '{\n  "buttons": [\n    {"label": "Approve", "value": "approved"},\n    {"label": "Reject", "value": "rejected"},\n    {"label": "Need More Info", "value": "moreInfo"}\n  ]\n}',
-        placeholder: '{"buttons": [{"label": "Approve", "value": "approved"}]}',
-        description: 'Custom JSON configuration for response options',
+        default: '{\n  "elements": [\n    {\n      "type": "radiogroup",\n      "name": "decision",\n      "title": "Please select an option",\n      "choices": ["Approve", "Reject", "Need More Info"]\n    }\n  ]\n}',
+        placeholder: '{"elements": [{"type": "text", "name": "comment", "title": "Your comment"}]}',
+        description: 'Form definition in survey.json JSON format',
         displayOptions: {
           show: {
             operation: ['hitlRequest'],
-            responseType: ['custom'],
+            responseType: ['form'],
           },
         },
       },
@@ -290,12 +290,12 @@ export class NebulaHitlRequest implements INodeType {
           tags?: string;
         };
 
-        // Get custom options if response type is custom
-        let customOptions: IDataObject = {};
-        if (responseType === 'custom') {
-          const customOptionsJson = this.getNodeParameter('customOptions', itemIndex, '{}') as string;
+        // Get form JSON if response type is form
+        let form: IDataObject = {};
+        if (responseType === 'form') {
+          const formJsonStr = this.getNodeParameter('formJson', itemIndex, '{}') as string;
           try {
-            customOptions = JSON.parse(customOptionsJson);
+            form = JSON.parse(formJsonStr);
           } catch {
             // Use empty object if parsing fails
           }
@@ -332,7 +332,7 @@ export class NebulaHitlRequest implements INodeType {
           title,
           message,
           responseType,
-          customOptions: responseType === 'custom' ? customOptions : undefined,
+          form: responseType === 'form' ? form : undefined,
           webhookUrl, // The URL the backend should POST to when responding
           priority: options.priority || 'normal',
           timeoutMinutes: options.timeoutMinutes || 0,

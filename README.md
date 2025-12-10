@@ -119,7 +119,7 @@ services:
 3. Configure the node:
    - **Title**: A short description of what needs human attention
    - **Message**: Detailed markdown-formatted message
-   - **Response Type**: Choose from Ok, Yes/No, Text, or Custom
+   - **Response Type**: Choose from Ok, Yes/No, Text, or Form
 
 ### Response Types
 
@@ -128,16 +128,26 @@ services:
 | **Ok** | Simple acknowledgement | `"ok"` |
 | **Yes/No** | Binary choice | `"yes"` or `"no"` |
 | **Text** | Free-form text input | User's text input |
-| **Custom** | Custom JSON options | Value from selected option |
+| **Form (survey.json)** | Custom form in survey.json format | Form submission data |
 
-### Custom Response Example
+### Form JSON Example
+
+The Form response type uses [survey.json](https://surveyjs.io/form-library/documentation/design-survey/create-a-simple-survey) format:
 
 ```json
 {
-  "buttons": [
-    {"label": "Approve", "value": "approved"},
-    {"label": "Reject", "value": "rejected"},
-    {"label": "Need More Info", "value": "moreInfo"}
+  "elements": [
+    {
+      "type": "radiogroup",
+      "name": "decision",
+      "title": "Please select an option",
+      "choices": ["Approve", "Reject", "Need More Info"]
+    },
+    {
+      "type": "text",
+      "name": "comment",
+      "title": "Additional comments"
+    }
   ]
 }
 ```
@@ -179,7 +189,7 @@ Creates a new HITL request.
   "title": "Approval Required",
   "message": "Please review this order...",
   "responseType": "yesno",
-  "customOptions": null,
+  "form": null,
   "webhookUrl": "https://your-n8n.com/webhook-waiting/xxx/nebula-hitl-response",
   "priority": "normal",
   "timeoutMinutes": 0,
