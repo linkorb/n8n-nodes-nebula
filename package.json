@@ -1,6 +1,6 @@
 {
   "name": "@linkorb/n8n-nodes-nebula",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "n8n nodes for Nebula - Human-in-the-Loop (HITL) requests with configurable REST API backend",
   "keywords": [
     "n8n-community-node-package",
@@ -47,7 +47,9 @@
       "dist/credentials/NebulaApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/NebulaHitlRequest/NebulaHitlRequest.node.js"
+      "dist/nodes/NebulaHitlRequest/NebulaHitlRequest.node.js",
+      "dist/nodes/NebulaTrigger/NebulaTrigger.node.js",
+      "dist/nodes/NebulaAction/NebulaAction.node.js"
     ]
   },
   "devDependencies": {

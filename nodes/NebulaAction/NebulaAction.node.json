@@ -1,0 +1,25 @@
+{
+  "node": "n8n-nodes-nebula.nebulaAction",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Utility", "Core Nodes"],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/linkorb/n8n-nodes-nebula"
+      }
+    ]
+  },
+  "alias": [
+    "nebula",
+    "action",
+    "execute",
+    "workflow",
+    "automation",
+    "task",
+    "run"
+  ],
+  "subcategories": {
+    "Core Nodes": ["Flow"]
+  }
+}

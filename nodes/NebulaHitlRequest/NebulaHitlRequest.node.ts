@@ -351,7 +351,7 @@ export class NebulaHitlRequest implements INodeType {
         try {
           await this.helpers.httpRequest({
             method: 'POST',
-            url: `${baseUrl}/requests`,
+            url: `${baseUrl}/api/v1/hitl/requests`,
             body: payload,
             json: true,
             auth: {

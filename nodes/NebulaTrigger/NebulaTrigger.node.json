@@ -1,0 +1,27 @@
+{
+  "node": "n8n-nodes-nebula.nebulaTrigger",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Core Nodes"],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/linkorb/n8n-nodes-nebula"
+      }
+    ]
+  },
+  "alias": [
+    "nebula",
+    "trigger",
+    "webhook",
+    "form",
+    "survey",
+    "input",
+    "start",
+    "entrypoint",
+    "api"
+  ],
+  "subcategories": {
+    "Core Nodes": ["Flow"]
+  }
+}

@@ -20,8 +20,8 @@ export class NebulaApi implements ICredentialType {
       name: 'baseUrl',
       type: 'string',
       default: '',
-      placeholder: 'https://api.example.com',
-      description: 'The base URL of your Nebula API backend',
+      placeholder: 'https://nebula.example.com',
+      description: 'The base URL of your Nebula instance (without any API paths, e.g., https://nebula.example.com)',
       required: true,
     },
     {
@@ -66,7 +66,7 @@ export class NebulaApi implements ICredentialType {
   test: ICredentialTestRequest = {
     request: {
       baseURL: '={{$credentials.baseUrl}}',
-      url: '/health',
+      url: '/api/v1/action/actions',
       method: 'GET',
     },
   };
