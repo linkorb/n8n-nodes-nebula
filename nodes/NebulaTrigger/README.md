@@ -2,6 +2,8 @@
 
 The **Nebula Trigger** node is a webhook-based trigger that starts n8n workflows when called from external systems (primarily Nebula, a PHP application). It accepts form data defined by a Survey.js form definition, which is exposed via the n8n REST API for remote systems to fetch and present to users.
 
+> **See also:** [All Nodes](../README.md) | [Credentials](../../credentials/README.md)
+
 ## Overview
 
 ```

@@ -1,30 +1,23 @@
 # n8n-nodes-nebula
 
-A custom n8n node for implementing **Nebula HITL (Human-in-the-Loop)** workflows with your own configurable REST API backend.
+A collection of custom n8n nodes for integrating with **Nebula** - enabling Human-in-the-Loop (HITL) workflows, action execution, and webhook-based triggers.
 
-![Nebula HITL Request Node](docs/node-screenshot.png)
+## Nodes
 
-## Description
+| Node | Description |
+|------|-------------|
+| [Nebula HITL Request](nodes/NebulaHitlRequest/README.md) | Create human approval/input requests that pause workflow execution until a human responds |
+| [Nebula Action](nodes/NebulaAction/README.md) | Execute Nebula Actions via the Nebula API |
+| [Nebula Trigger](nodes/NebulaTrigger/README.md) | Webhook-based trigger that starts workflows with Survey.js form data |
 
-This node allows you to create human approval/input requests in your n8n workflows. Unlike other HITL solutions that are tied to specific cloud services, this node is designed to work with **your own backend**, giving you full control over how requests are created, stored, displayed, and responded to.
+## Credentials
 
-### Features
+| Credential | Description |
+|------------|-------------|
+| [Nebula API](credentials/README.md#nebula-api) | Authentication for outbound requests to Nebula |
+| [Nebula Trigger Auth](credentials/README.md#nebula-trigger-auth) | Authentication for incoming webhook requests |
 
-- ⏸️ **True Wait Functionality**: Workflow execution pauses until a human responds
-- 🔐 **Configurable Backend**: Connect to your own REST API endpoint
-- 📝 **Multiple Response Types**: Ok, Yes/No, Text, or Custom options
-- 🏷️ **Rich Metadata**: Support for priority, assignee, tags, and custom data
-- 🔄 **Webhook-based Responses**: Automatically resume workflow when human responds
-- ⏰ **Configurable Timeout**: Set how long to wait for a response
-- 📊 **Full Context**: Pass workflow and execution context to your backend
-
-### How It Works
-
-1. **Request Creation**: The node POSTs a request to your backend with all details including a webhook URL
-2. **Workflow Pauses**: The n8n execution enters a "waiting" state - no resources are consumed while waiting
-3. **Human Action**: Your backend displays the request to a human for action
-4. **Webhook Callback**: When the human responds, your backend POSTs to the webhook URL
-5. **Workflow Resumes**: n8n receives the webhook, resumes the workflow with the response data as output
+See the [credentials documentation](credentials/README.md) for setup instructions.
 
 ## Installation
 
@@ -93,268 +86,19 @@ services:
       - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom
 ```
 
-## Configuration
+## Quick Start
 
-### Setting up Credentials
+### 1. Set Up Credentials
 
 1. In n8n, go to **Credentials → Add Credential**
-2. Search for "Nebula API"
-3. Fill in the required fields:
+2. Search for "Nebula API" and configure your Nebula instance connection
+3. See [credentials documentation](credentials/README.md) for details
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| **Base URL** | Your Nebula API backend base URL | `https://api.mycompany.com/nebula` |
-| **Username** | Authentication username | `n8n-service` |
-| **Password** | Authentication password | `your-secure-password` |
-| **Metadata** | Additional JSON data for all requests | `{"tenantId": "abc123"}` |
+### 2. Use a Node
 
-> **Note:** The webhook callback URL is automatically determined from your n8n instance configuration. You don't need to specify it manually.
-
-## Usage
-
-### Basic Workflow
-
-1. Add the **Nebula HITL Request** node to your workflow
-2. Connect it to your workflow flow
-3. Configure the node:
-   - **Title**: A short description of what needs human attention
-   - **Message**: Detailed markdown-formatted message
-   - **Response Type**: Choose from Ok, Yes/No, Text, or Form
-
-### Response Types
-
-| Type | Description | Response Value |
-|------|-------------|----------------|
-| **Ok** | Simple acknowledgement | `"ok"` |
-| **Yes/No** | Binary choice | `"yes"` or `"no"` |
-| **Text** | Free-form text input | User's text input |
-| **Form (survey.json)** | Custom form in survey.json format | Form submission data |
-
-### Form JSON Example
-
-The Form response type uses [survey.json](https://surveyjs.io/form-library/documentation/design-survey/create-a-simple-survey) format:
-
-```json
-{
-  "elements": [
-    {
-      "type": "radiogroup",
-      "name": "decision",
-      "title": "Please select an option",
-      "choices": ["Approve", "Reject", "Need More Info"]
-    },
-    {
-      "type": "text",
-      "name": "comment",
-      "title": "Additional comments"
-    }
-  ]
-}
-```
-
-### Node Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| **Priority** | Request priority level | `normal` |
-| **Timeout (Minutes)** | Auto-timeout for requests | `0` (no timeout) |
-| **Assignee** | Email/ID to assign request to | (none) |
-| **Tags** | Comma-separated tags | (none) |
-
-### Additional Data
-
-You can pass additional JSON data that will be included in the request to your backend:
-
-```json
-{
-  "orderId": "12345",
-  "customerName": "John Doe",
-  "amount": 150.00
-}
-```
-
-## Backend API Requirements
-
-Your backend API needs to implement the following endpoint:
-
-### POST /requests
-
-Creates a new HITL request.
-
-**Request Body:**
-
-```json
-{
-  "requestId": "uuid-v4-string",
-  "title": "Approval Required",
-  "message": "Please review this order...",
-  "responseType": "yesno",
-  "form": null,
-  "webhookUrl": "https://your-n8n.com/webhook-waiting/xxx/nebula-hitl-response",
-  "priority": "normal",
-  "timeoutMinutes": 0,
-  "assignee": "john@example.com",
-  "tags": ["urgent", "finance"],
-  "metadata": {"tenantId": "abc123"},
-  "additionalData": {"orderId": "12345"},
-  "inputData": {},
-  "workflowId": "workflow-id",
-  "executionId": "execution-id",
-  "createdAt": "2024-01-15T10:30:00Z"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "requestId": "uuid-v4-string",
-  "status": "pending"
-}
-```
-
-### Webhook Callback (IMPORTANT - This Resumes the Workflow!)
-
-When a human responds, your backend **MUST** call the `webhookUrl` provided in the request payload. This is what resumes the waiting n8n workflow execution.
-
-**POST to webhookUrl:**
-
-```json
-{
-  "requestId": "uuid-v4-string",
-  "response": "approved",
-  "responseValue": "approved",
-  "respondedBy": "john@example.com",
-  "respondedAt": "2024-01-15T11:45:00Z",
-  "comment": "Looks good!",
-  "data": {
-    "anyAdditionalData": "you want to pass"
-  }
-}
-```
-
-**What happens:**
-1. n8n receives the webhook POST
-2. The waiting workflow execution resumes
-3. The Nebula HITL Request node outputs the webhook payload data
-4. Subsequent nodes in your workflow can access `$json.response`, `$json.respondedBy`, etc.
-
-**The webhook URL format:** `https://your-n8n-instance.com/webhook-waiting/{executionId}/nebula-hitl-response`
-
-The `webhookUrl` is automatically constructed and included in the request payload sent to your backend. Your backend simply needs to POST to this URL when a human responds.
-
-### Health Check (Optional)
-
-For credential testing, implement:
-
-**GET /health**
-
-```json
-{
-  "status": "ok"
-}
-```
-
-## Example Backend Implementation
-
-Here's a minimal Express.js backend example:
-
-```javascript
-const express = require('express');
-const app = express();
-
-app.use(express.json());
-
-// Store requests in memory (use a database in production)
-const requests = new Map();
-
-// Create request
-app.post('/requests', (req, res) => {
-  const { requestId, webhookUrl, ...data } = req.body;
-  
-  requests.set(requestId, {
-    ...data,
-    requestId,
-    webhookUrl,
-    status: 'pending'
-  });
-  
-  console.log('New Nebula HITL request:', requestId, data.title);
-  
-  res.json({ success: true, requestId, status: 'pending' });
-});
-
-// Respond to request (called by your UI)
-app.post('/requests/:requestId/respond', async (req, res) => {
-  const requestId = req.params.requestId;
-  const { response, respondedBy } = req.body;
-  
-  const request = requests.get(requestId);
-  if (!request) {
-    return res.status(404).json({ error: 'Request not found' });
-  }
-  
-  // Call n8n webhook to resume workflow
-  await fetch(request.webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      requestId,
-      response,
-      responseValue: response,
-      respondedBy,
-      respondedAt: new Date().toISOString()
-    })
-  });
-  
-  requests.delete(requestId);
-  
-  res.json({ success: true });
-});
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-app.listen(3000, () => {
-  console.log('Nebula HITL Backend running on port 3000');
-});
-```
-
-## Workflow Example
-
-```
-[Trigger] → [Process Data] → [Nebula HITL Request] → [If Response == "approved"] → [Continue]
-                                                              ↓
-                                                   [Handle Rejection]
-```
-
-### Accessing Response Data
-
-After the Nebula HITL Request node resumes (when the webhook is called), the node outputs the webhook payload data. You can access:
-
-```javascript
-// In a Code node or expression
-const requestId = $json.requestId;       // The original request ID
-const response = $json.response;         // The response value (e.g., "approved", "yes", "rejected")
-const responseValue = $json.responseValue; // Same as response (for compatibility)
-const respondedBy = $json.respondedBy;   // Who responded (email/ID)
-const respondedAt = $json.respondedAt;   // ISO timestamp when they responded
-const comment = $json.comment;           // Optional comment from responder
-const data = $json.data;                 // Any additional data from your backend
-```
-
-**Example: Using in an IF node condition:**
-```
-{{ $json.response }} equals "approved"
-```
-
-**Example: Send notification with response:**
-```
-The request was {{ $json.response }} by {{ $json.respondedBy }} at {{ $json.respondedAt }}
-```
+- **For human approvals**: Use the [Nebula HITL Request](nodes/NebulaHitlRequest/README.md) node
+- **For executing actions**: Use the [Nebula Action](nodes/NebulaAction/README.md) node
+- **For triggering workflows**: Use the [Nebula Trigger](nodes/NebulaTrigger/README.md) node
 
 ## Development
 
@@ -363,12 +107,14 @@ The request was {{ $json.response }} by {{ $json.respondedBy }} at {{ $json.resp
 ```
 n8n-nodes-nebula/
 ├── credentials/
-│   └── NebulaApi.credentials.ts
+│   ├── NebulaApi.credentials.ts      # Outbound API authentication
+│   ├── NebulaTriggerAuth.credentials.ts  # Inbound webhook authentication
+│   └── README.md                     # Credentials documentation
 ├── nodes/
-│   └── NebulaHitlRequest/
-│       ├── NebulaHitlRequest.node.ts
-│       ├── NebulaHitlRequest.node.json
-│       └── nebulaHitlRequest.svg
+│   ├── NebulaAction/                 # Execute Nebula actions
+│   ├── NebulaHitlRequest/            # Human-in-the-loop requests
+│   ├── NebulaTrigger/                # Webhook trigger with forms
+│   └── README.md                     # Nodes overview
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -402,12 +148,6 @@ pnpm format
 3. Verify the custom nodes path in n8n configuration
 4. Restart n8n completely
 
-### Webhook not being called
-
-1. Ensure your n8n instance is publicly accessible or your backend can reach it
-2. Check the webhookUrl in your backend logs
-3. Verify the requestId matches in both the request and response
-
 ### Authentication errors
 
 1. Verify credentials in n8n are correct
@@ -431,6 +171,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - [n8n](https://n8n.io) - Fair-code workflow automation
 - [n8n documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/)
+- [Survey.js](https://surveyjs.io) - Form library used for form definitions
 
 ## Support
 
