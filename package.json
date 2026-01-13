@@ -44,7 +44,8 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/NebulaApi.credentials.js"
+      "dist/credentials/NebulaApi.credentials.js",
+      "dist/credentials/NebulaTriggerAuth.credentials.js"
     ],
     "nodes": [
       "dist/nodes/NebulaHitlRequest/NebulaHitlRequest.node.js",
