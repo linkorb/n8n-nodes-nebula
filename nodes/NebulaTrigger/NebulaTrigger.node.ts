@@ -25,6 +25,14 @@ export class NebulaTrigger implements INodeType {
     // Trigger nodes have no inputs - they are workflow entry points
     inputs: [],
     outputs: ['main'],
+    // Optional credentials for authenticating incoming webhook requests
+    credentials: [
+      {
+        name: 'nebulaTriggerAuth',
+        displayName: 'Nebula Trigger Auth',
+        required: false,
+      },
+    ],
     webhooks: [
       {
         name: 'default',
@@ -37,6 +45,14 @@ export class NebulaTrigger implements INodeType {
       },
     ],
     properties: [
+      // --- Authentication ---
+      {
+        displayName: 'Authenticate Caller',
+        name: 'authenticateCaller',
+        type: 'boolean',
+        default: false,
+        description: 'Whether to require authentication for incoming webhook requests. When enabled, callers must provide a valid Bearer token in the Authorization header. This is different from Nebula API credentials which authenticate n8n to Nebula.',
+      },
       // --- Form Definition ---
       {
         displayName: 'Form Definition (Survey.js)',
@@ -152,6 +168,85 @@ export class NebulaTrigger implements INodeType {
   async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
     const req = this.getRequestObject();
     const bodyData = this.getBodyData() as IDataObject;
+
+    // Check authentication if enabled
+    const authenticateCaller = this.getNodeParameter('authenticateCaller', false) as boolean;
+
+    if (authenticateCaller) {
+      // Get the configured token from credentials
+      let expectedToken: string | undefined;
+      try {
+        const credentials = await this.getCredentials('nebulaTriggerAuth');
+        expectedToken = credentials?.token as string;
+      } catch {
+        // No credentials configured but authentication is enabled
+        return {
+          webhookResponse: {
+            status: 500,
+            body: {
+              success: false,
+              error: 'Authentication is enabled but no credentials are configured',
+            },
+          },
+        };
+      }
+
+      if (!expectedToken) {
+        return {
+          webhookResponse: {
+            status: 500,
+            body: {
+              success: false,
+              error: 'Authentication is enabled but token is not configured',
+            },
+          },
+        };
+      }
+
+      // Get the Authorization header from the request
+      const authHeader = req.headers.authorization as string | undefined;
+
+      if (!authHeader) {
+        return {
+          webhookResponse: {
+            status: 401,
+            body: {
+              success: false,
+              error: 'Authorization header is required',
+            },
+          },
+        };
+      }
+
+      // Check for Bearer token format
+      if (!authHeader.startsWith('Bearer ')) {
+        return {
+          webhookResponse: {
+            status: 401,
+            body: {
+              success: false,
+              error: 'Authorization header must use Bearer token format',
+            },
+          },
+        };
+      }
+
+      const providedToken = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+      // Constant-time comparison to prevent timing attacks
+      if (providedToken.length !== expectedToken.length ||
+          !providedToken.split('').every((char, i) => char === expectedToken[i])) {
+        return {
+          webhookResponse: {
+            status: 401,
+            body: {
+              success: false,
+              error: 'Invalid authentication token',
+            },
+          },
+        };
+      }
+    }
 
     // Get node parameters
     const formJsonStr = this.getNodeParameter('formJson', '') as string;
