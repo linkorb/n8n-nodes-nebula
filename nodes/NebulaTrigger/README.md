@@ -109,7 +109,6 @@ When the webhook is triggered, the workflow receives data in this format:
   "formData": {
     "color": "blue"
   },
-  "color": "blue",
   "requestMetadata": {
     "timestamp": "2025-01-12T10:30:00.000Z",
     "method": "POST",
@@ -125,8 +124,7 @@ When the webhook is triggered, the workflow receives data in this format:
 }
 ```
 
-- **formData**: Object containing all submitted form fields
-- **Root-level fields**: Form fields are also available at root level for convenience (e.g., `{{ $json.color }}`)
+- **formData**: Object containing all submitted form fields (access via `{{ $json.formData.color }}`)
 - **requestMetadata**: Information about the HTTP request (if enabled)
 - **workflowInfo**: Basic workflow identification
 

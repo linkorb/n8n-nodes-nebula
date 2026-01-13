@@ -296,8 +296,6 @@ export class NebulaTrigger implements INodeType {
     const outputData: IDataObject = {
       // Form data submitted by the user (main payload)
       formData: bodyData,
-      // Also expose form data at root level for easier access
-      ...bodyData,
     };
 
     // Include request metadata if enabled
