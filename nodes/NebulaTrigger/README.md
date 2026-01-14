@@ -82,6 +82,8 @@ The **Nebula Trigger** node is a webhook-based trigger that starts n8n workflows
 5. **Get the Webhook URL**: Once activated, n8n provides a webhook URL in the format:
    - Production: `https://your-n8n.com/webhook/{workflowId}/nebula-trigger`
    - Testing: `https://your-n8n.com/webhook-test/{workflowId}/nebula-trigger`
+   
+   > **Note:** The webhook path includes the workflow ID to ensure each workflow has a unique URL. This prevents issues when copying nodes between workflows.
 
 ### Node Properties
 
@@ -225,13 +227,14 @@ $result = json_decode($response->getBody(), true);
 
 ### Webhook URL Patterns
 
-n8n uses different URL patterns for webhooks:
+n8n uses different URL patterns for webhooks. The NebulaTrigger node explicitly includes the workflow ID in the path to ensure unique URLs:
 
 | Mode | URL Pattern | Use Case |
 |------|-------------|----------|
-| Production | `/webhook/nebula-trigger` | Active workflows |
-| Production (unique) | `/webhook/{uuid}/nebula-trigger` | If unique paths enabled |
-| Testing | `/webhook-test/nebula-trigger` | Testing in n8n editor |
+| Production | `/webhook/{workflowId}/nebula-trigger` | Active workflows |
+| Testing | `/webhook-test/{workflowId}/nebula-trigger` | Testing in n8n editor |
+
+> **Important:** The workflow ID is embedded in the path, so each workflow has its own unique webhook URL. This prevents issues when copying nodes between workflows.
 
 ### API Response Codes
 

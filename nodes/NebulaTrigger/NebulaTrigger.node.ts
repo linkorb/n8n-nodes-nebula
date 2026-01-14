@@ -38,8 +38,9 @@ export class NebulaTrigger implements INodeType {
         name: 'default',
         httpMethod: 'POST',
         responseMode: 'onReceived',
-        path: 'nebula-trigger',
-        // isFullPath: false means path will be: /webhook/{workflowId}/nebula-trigger
+        // Use workflow ID in path to ensure each workflow gets a unique webhook URL
+        // This prevents copied nodes from sharing the same webhook URL
+        path: '={{$workflow.id}}/nebula-trigger',
         // When workflow is active, use /webhook/ path
         // When testing, use /webhook-test/ path
       },
