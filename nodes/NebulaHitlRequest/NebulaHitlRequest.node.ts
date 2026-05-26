@@ -304,13 +304,9 @@ export class NebulaHitlRequest implements INodeType {
         // Generate unique request ID
         const requestId = uuidv4();
 
-        // Construct the webhook URL using n8n's built-in instance base URL
-        // The webhook path is defined in the node description as 'nebula-hitl-response'
-        const n8nBaseUrl = this.getInstanceBaseUrl().replace(/\/$/, '');
-        const executionId = this.getExecutionId();
-        
-        // n8n webhook URL format for waiting executions: {baseUrl}/webhook-waiting/{executionId}/nebula-hitl-response
-        const webhookUrl = `${n8nBaseUrl}/webhook-waiting/${executionId}/nebula-hitl-response`;
+        // Construct the Execution Resume URL (the URL the backend should POST to when responding).
+        // The path is defined in the node description as 'nebula-hitl-response'.
+        const execResumeUrl = this.getExecutionResumeUrl('nebula-hitl-response');
 
         // Parse additional data
         let parsedAdditionalData: IDataObject = {};
@@ -323,6 +319,8 @@ export class NebulaHitlRequest implements INodeType {
         // Store incoming item data for reference
         const inputItemData = items[itemIndex]?.json || {};
 
+        const executionId = this.getExecutionId();
+
         // Get workflow info
         const workflow = this.getWorkflow();
 
@@ -333,7 +331,7 @@ export class NebulaHitlRequest implements INodeType {
           message,
           responseType,
           form: responseType === 'form' ? form : undefined,
-          webhookUrl, // The URL the backend should POST to when responding
+          execResumeUrl,
           priority: options.priority || 'normal',
           timeoutMinutes: options.timeoutMinutes || 0,
           assignee: options.assignee || undefined,
@@ -386,7 +384,7 @@ export class NebulaHitlRequest implements INodeType {
         staticData.currentRequest = {
           requestId,
           title,
-          webhookUrl,
+          execResumeUrl,
           createdAt: payload.createdAt,
           waitTill: waitTill.toISOString(),
         };
